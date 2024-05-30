@@ -426,3 +426,72 @@ vector<string> DataManager::split(string str, char delimiter) {
     } 
     return res;
 }
+void DataManager::Bloque(int tamanioBloque, int cant_platos, int cant_superficies, int cant_pistas, int cant_sectores) {
+    int cantidadBloques;
+    cout << "Ingrese la cantidad de bloques que desea crear: ";
+    cin >> cantidadBloques;
+
+    vector<vector<string>> vectores(cantidadBloques);  
+
+    int plato, superficie, pista, sector;
+    int currentBlockIndex = 0;  // Índice del bloque actual
+    int currentBlockSize = 0;   // Tamaño actual del bloque
+
+    for (plato = 1; plato <= cant_platos; plato++) {
+        for (superficie = 1; superficie <= cant_superficies; superficie++) {
+            for (pista = 1; pista <= cant_pistas; pista++) {
+                for (sector = 1; sector <= cant_sectores; sector++) {
+                    string primer_sector = "../Disco/Disco/" + to_string(plato) + "/" + to_string(superficie) + "/" + to_string(pista) + "/" + to_string(sector);
+                    int peso_sector = Peso::peso_sector(primer_sector);
+                    
+                    if (currentBlockSize + peso_sector > tamanioBloque) {
+                        currentBlockIndex++;
+                        currentBlockSize = 0;
+                        if (currentBlockIndex >= cantidadBloques) {
+                            cout << "Se ha alcanzado la cantidad máxima de bloques." << endl;
+                            // Imprimir el contenido de todos los bloques al alcanzar el límite
+                            for (int i = 0; i < cantidadBloques; ++i) {
+                                cout << "Bloque " << i + 1 << ":" << endl;
+                                for (const string& registro : vectores[i]) {
+                                    cout << registro << endl;
+                                }
+                                cout << endl;
+                            }
+                            return;
+                        }
+                    }
+
+                    ifstream directorio(primer_sector);
+                    if (!directorio) {
+                        cerr << "Error al abrir el archivo: " << primer_sector << endl;
+                        continue; // Saltar a la siguiente iteración si no se puede abrir el archivo
+                    }
+
+                    string linea_registros;
+                    while (getline(directorio, linea_registros)) {
+                        vectores[currentBlockIndex].push_back(linea_registros);
+                        currentBlockSize += linea_registros.size();
+                        if (currentBlockSize >= tamanioBloque) {
+                            currentBlockIndex++;
+                            currentBlockSize = 0;
+                            if (currentBlockIndex >= cantidadBloques) {
+                                cout << "Se ha alcanzado la cantidad máxima de bloques." << endl;
+                                // Imprimir el contenido de todos los bloques al alcanzar el límite
+                            
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Imprimir el contenido de todos los bloques después de procesar todos los archivos
+    for (int i = 0; i < cantidadBloques; ++i) {
+        cout << "Bloque " << i + 1 << ":" << endl;
+        for (const string& registro : vectores[i]) {
+            cout << registro << endl;
+        }
+        cout << endl;
+    }
+}

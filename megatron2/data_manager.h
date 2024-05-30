@@ -3,7 +3,8 @@
 using namespace std;
 #include <string>
 #include <vector>
-
+#include "pesos.h"
+#include "global_variable.h"
 class DataManager {
 public:
     static string determinarTipoDato(const string& valor);
@@ -19,6 +20,7 @@ public:
     static void consultas_tablas_final(string nombre_relacion, vector<string> columnas);
     static void where(string relacion, string data_string,string simbolo, int compare);
     static void where_condition(string relacion, string data_string,string simbolo, int compare, string sign, string name_new_relation);
+    static void Bloque(int tamanioBloque, int cant_platos, int cant_superficies, int cant_pistas, int cant_sectores);
 };
 
 #endif // DATA_MANAGER_H

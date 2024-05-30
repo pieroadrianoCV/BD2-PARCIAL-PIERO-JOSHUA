@@ -8,9 +8,8 @@
 #include <cctype>
 #include <limits>
 #include <cmath>
-
+#include <filesystem>
 using namespace std;
-int id=0;
 #define esquemas "Esquemas"
 #define tamanio_sector 1000 // 10000 bits
 
@@ -108,6 +107,32 @@ void Database::init() {
             archivo.close();
             cout << cant_platos << " " << cant_superficies << " " << cant_pistas << " " << cant_sectores << endl;
             SchemaManager::new_register(nombre_registro, cant_platos, cant_superficies, cant_pistas, cant_sectores); 
+        }
+        else if (commands == "directory") {
+            int cant_platos, cant_superficies, cant_pistas, cant_sectores;
+            string register_data;
+            cout << "Search?" << endl; cin >> register_data;
+            ifstream archivo("data_disco");
+            archivo >> cant_platos >> cant_superficies >> cant_pistas >> cant_sectores;
+            archivo.close();
+            SchemaManager::dictionary_search(register_data, cant_platos, cant_superficies, cant_pistas, cant_sectores);
+        }
+        else if (commands == "disk_space") {
+            int cant_platos, cant_superficies, cant_pistas, cant_sectores;
+            ifstream archivo("data_disco");
+            archivo >> cant_platos >> cant_superficies >> cant_pistas >> cant_sectores;
+            archivo.close();
+            Peso::peso_disco( cant_platos, cant_superficies, cant_pistas, cant_sectores);
+        }
+        else if (commands == "create_bloque")
+        {
+            int cant_platos, cant_superficies, cant_pistas, cant_sectores, tamanioBloque;
+            ifstream archivo("data_disco");
+            archivo >> cant_platos >> cant_superficies >> cant_pistas >> cant_sectores;
+            archivo.close();
+            cout << "Tamanio de bloque : " << endl;
+            cin >> tamanioBloque;
+            DataManager::Bloque(tamanioBloque, cant_platos, cant_superficies, cant_pistas, cant_sectores);
         }
         else if(commands == "exit")
             break;

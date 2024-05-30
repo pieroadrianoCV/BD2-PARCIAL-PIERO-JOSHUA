@@ -8,6 +8,7 @@
 #include <limits>
 #include <cmath>
 #include <vector>
+#include "global_variable.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ void SchemaManager::create_esquema(string relacion_nombre) {
     while (getline(archivo_entrada, linea)) {
         stringstream ss(linea);
         string valor;
-        while (getline(ss, valor, ';')) {
+        while (getline(ss, valor, ',')) {
             archivo_salida_esquemas << "#";
             archivo_salida_esquemas << valor;
         }
@@ -56,7 +57,8 @@ void SchemaManager::create_relacion() {
     DataManager data_manager;
     string nombre_archivo_relacion;
     string nombre_relacion;
-    cout<<"Enter relationship name: "<<endl;cin>>nombre_relacion;   
+    cout<<"Enter relationship name: "<<endl;
+    cin>>nombre_relacion;   
     
     if(!existe_relacion(data_manager.capitalize(nombre_relacion))) {
         cout<<" The relationship does not exist "<<nombre_relacion<<endl;
@@ -84,18 +86,26 @@ void SchemaManager::create_relacion() {
                 primera_linea = false;
                 continue; 
             }
-            int count_commas = count(linea.begin(), linea.end(), ';');
+            int count_commas = count(linea.begin(), linea.end(), ',');
             int count_hashtag = 0;
             stringstream ss(linea);
             string valor;
-            while (getline(ss, valor, ';')) {
+            string linea_relacion = "";
+            while (getline(ss, valor, ',')) {
                 archivo_salida << valor;
+                linea_relacion += valor;
                 if (count_hashtag < count_commas) {
                     archivo_salida << "#";
+                    linea_relacion += "#";
                     count_hashtag++;
                 }
             }
             archivo_salida << endl;
+            int cant_platos, cant_superficies, cant_pistas, cant_sectores;
+            ifstream archivo_data_disco("data_disco");
+            archivo_data_disco >> cant_platos >> cant_superficies >> cant_pistas >> cant_sectores;
+            archivo_data_disco.close();
+            new_register(nombre_relacion, cant_platos, cant_superficies, cant_pistas, cant_sectores, false, linea_relacion);
         }
 
         archivo_entrada.close();
@@ -128,28 +138,34 @@ string SchemaManager::encontrar_relacion(string nombre_relacion){
     return "Not found";
 }
 
-void SchemaManager::new_register(string name_relacion, int cant_platos, int cant_superficies, int cant_pistas, int cant_sectores) {
+void SchemaManager::new_register(string name_relacion, int cant_platos, int cant_superficies, int cant_pistas, int cant_sectores, bool llenar_desde_file, string n_registro, string name_archivo_relacion) {
     ofstream archivo_salida_relacion(name_relacion, ios::app);
     string linea_esquema;
     ifstream archivo_entrada_esquemas(esquemas);
     string nuevo_registro;    
-    string linea2;
+ 
+
+    int length;
+
     while(getline(archivo_entrada_esquemas, linea_esquema)) {
         if(linea_esquema.find(name_relacion) != -1){ 
             cout << "You must place "<< linea_esquema <<endl;
             break;
         }
     }
-    cout << "New register" <<endl;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    getline(cin, nuevo_registro);
+    if (llenar_desde_file) {
+        cout << "New register" <<endl;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        getline(cin, nuevo_registro);
+    } else {
+        nuevo_registro = n_registro;
+    }
     
     bool espacio_disponible = false;
     int plato;
     int superficie;
     int pista;
     int sector;
-    int id = 0;
 
     for (plato = 1; plato <= cant_platos; plato++) {
         for (superficie = 1; superficie <= cant_superficies; superficie++) {
@@ -179,12 +195,121 @@ void SchemaManager::new_register(string name_relacion, int cant_platos, int cant
 
         ofstream archivo_salida_disco(ruta_completa, ios::app);
 
-        if (archivo_salida_disco.is_open()) {
-            archivo_salida_disco << id++ << " " << nuevo_registro << endl;
-            cout << "El archivo se ha guardado en la nueva carpeta correctamente." << endl;
-        } else {
-            cerr << "No se pudo abrir el archivo en la nueva carpeta." << endl;
-        }
+        if (archivo_salida_disco.is_open()) 
+        {
+            cout << "Inserts 0 for fixed length or 1 for variable length" << endl; cin >> length;
+            if(length == 0 ) 
+            {
+                cout << "Archivo relacion ? " << endl;
+                cin >> name_archivo_relacion;
+
+                ifstream archivo_relacion (name_archivo_relacion);
+                string linea_relacion;
+                string data_insert_relacion;
+                bool primer_valor;
+                int peso_cadena = 0;
+                int peso_string;
+
+                cout << "Ingrese peso del string: "; cin >> peso_string;
+
+                while (getline (archivo_relacion,linea_relacion))
+                {
+                    cout << linea_relacion << endl;
+                    primer_valor = false;
+                    do 
+                    {
+                        cout << "Insert data: ";
+                        cin >> data_insert_relacion;
+
+                        stringstream ss(linea_relacion);
+                        string valor_relacion;
+                        bool tipo_dato_aceptado = true;
+
+                        cout << DataManager::determinarTipoDato(data_insert_relacion) << endl;
+                        while (getline(ss, valor_relacion, ',')) 
+                        {
+                            if (primer_valor) 
+                            {
+                                if (valor_relacion == DataManager::determinarTipoDato(data_insert_relacion)) 
+                                {
+                                    cout << "Tipo de dato aceptado" << endl;
+                                    int peso_cadena = data_insert_relacion.length();
+
+                                    if (valor_relacion == "string")
+                                    {
+                                        while (peso_cadena < peso_string) 
+                                        {
+                                            data_insert_relacion += " ";
+                                            peso_cadena++;
+                                        }
+                                    }
+                                    nuevo_registro += data_insert_relacion + '#';
+
+                                } else {
+                                    cout << "Tipo de dato no aceptado" << endl;
+                                    tipo_dato_aceptado = false;
+                                }
+                                break;
+                            } 
+                            else {
+                                primer_valor = true;
+                            }
+                        }
+                        if (tipo_dato_aceptado) 
+                        {
+                            break; 
+                        }
+
+                    } while (true);
+                }
+                archivo_salida_disco << id << " " << nuevo_registro << endl;
+                cout << "El archivo se ha guardado en la nueva carpeta correctamente." << endl;
+            }
+            else if (length == 1) 
+            {
+                cout << endl;
+            }   
+        } 
         archivo_salida_relacion.close();
     }
 }
+
+void SchemaManager::dictionary_search(string register_data, int cant_platos, int cant_superficies, int cant_pistas, int cant_sectores) {
+    int plato;
+    int superficie;
+    int pista;
+    int sector;
+    ifstream directorio_ubicacion("directorio");
+    string linea_directorio;
+    bool encontrado = false;
+
+        for (plato = 1; plato <= cant_platos; plato++) {
+            for (superficie = 1; superficie <= cant_superficies; superficie++) {
+                for (pista = 1; pista <= cant_pistas; pista++) {
+                    for (sector = 1; sector <= cant_sectores; sector++) {
+                        string primer_sector = "../Disco/Disco/" + to_string(plato) + "/" + to_string(superficie) + "/" + to_string(pista) + "/" + to_string(sector);
+                        ifstream data(primer_sector);
+                        string linea_data;
+
+                        while (getline(data, linea_data)) {
+                            size_t pos = linea_data.find(' ');
+                            if (pos != string::npos) {
+                                linea_data = linea_data.substr(pos + 1, register_data.size());
+                                if(register_data == linea_data) {
+                                    cout << "REGISTRO EN :" << primer_sector << endl;
+                                    break;
+                                }
+                            }
+                        }
+                        data.close();
+                        // if (encontrado) break;
+                    }
+                    // if (encontrado) break;
+                }
+                // if (encontrado) break;
+            }
+            // if (encontrado) break;
+        }
+    directorio_ubicacion.close(); 
+}
+
