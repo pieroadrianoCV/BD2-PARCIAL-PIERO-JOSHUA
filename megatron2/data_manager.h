@@ -5,6 +5,8 @@ using namespace std;
 #include <vector>
 #include "pesos.h"
 #include "global_variable.h"
+extern vector<vector<string>> bloques;
+extern int cantidadBloques;
 class DataManager {
 public:
     static string determinarTipoDato(const string& valor);
@@ -21,6 +23,10 @@ public:
     static void where(string relacion, string data_string,string simbolo, int compare);
     static void where_condition(string relacion, string data_string,string simbolo, int compare, string sign, string name_new_relation);
     static void Bloque(int tamanioBloque, int cant_platos, int cant_superficies, int cant_pistas, int cant_sectores);
+    /* Funciones de Prueba*/
+    static void imprimirBloques();
+    static bool agregarRegistrosBloque(const string& registro, int tamanioBloque, int& currentBlockIndex, int& currentBlockSize);
+    static void almacenarInformacionBloques();
 };
 
 #endif // DATA_MANAGER_H

@@ -1,0 +1,5 @@
+Plato: 3 Superficie: 1 Pista: 2 Bloque: 53
+=====================================================
+Plato: 3 Superficie: 1 Pista: 2 Sector: 2
+
+-----------------------

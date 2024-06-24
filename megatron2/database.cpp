@@ -130,8 +130,6 @@ void Database::init() {
             ifstream archivo("data_disco");
             archivo >> cant_platos >> cant_superficies >> cant_pistas >> cant_sectores;
             archivo.close();
-            cout << "Tamanio de bloque : " << endl;
-            cin >> tamanioBloque;
             DataManager::Bloque(tamanioBloque, cant_platos, cant_superficies, cant_pistas, cant_sectores);
         }
         else if(commands == "exit")

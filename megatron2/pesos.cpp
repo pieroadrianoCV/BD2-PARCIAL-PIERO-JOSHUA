@@ -51,7 +51,7 @@ void Peso::peso_disco(int cant_platos, int cant_superficies, int cant_pistas, in
             for (superficie = 1; superficie <= cant_superficies; superficie++) {
                 for (pista = 1; pista <= cant_pistas; pista++) {
                     for (sector = 1; sector <= cant_sectores; sector++) {
-                        string primer_sector = "../Disco/Disco/" + to_string(plato) + "/" + to_string(superficie) + "/" + to_string(pista) + "/" + to_string(sector);
+                        string primer_sector = "../Disco/Disco/Plato " + to_string(plato) + "/" + "Superficie " + to_string(superficie) + "/" + "Pista " + to_string(pista) + "/" + to_string(sector);
                         result += Peso::peso_sector(primer_sector);
                         result2 += tamanio_sector;
                     }

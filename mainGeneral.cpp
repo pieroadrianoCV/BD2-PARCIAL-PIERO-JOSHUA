@@ -4,17 +4,17 @@ using namespace std;
 
 void ejecutarBufferManager() {
     cout << "Ejecutando código de BufferManager..." << endl;
-    system("./BufferManager/main"); 
+    system("cd BufferManager && ./main"); 
 }
 
 void ejecutarDisco() {
     cout << "Ejecutando código de Disco..." << endl;
-    system("./Disco/a.out"); 
+    system("cd Disco && ./main"); 
 }
 
 void ejecutarMegatron() {
     cout << "Ejecutando código de Megatron..." << endl;
-    system("./megatron2/MEGATRON"); 
+    system("cd megatron2 && ./MEGATRON"); 
 }
 
 int main() {

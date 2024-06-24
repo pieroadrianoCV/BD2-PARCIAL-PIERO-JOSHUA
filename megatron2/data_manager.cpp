@@ -426,12 +426,102 @@ vector<string> DataManager::split(string str, char delimiter) {
     } 
     return res;
 }
+
+vector <vector<string>> bloques;
+int cantidadBloques;
+
+bool DataManager::agregarRegistrosBloque(const string& registro, int tamanioBloque, int& currentBlockIndex, int& currentBlockSize) {
+    if (currentBlockSize + registro.size() > tamanioBloque) {
+        currentBlockIndex++;
+        currentBlockSize = 0;
+        if (currentBlockIndex >= cantidadBloques) {
+            cout << "Se alcanzo la cantidad maxima de Bloques." << endl;
+            return false;
+        }
+    }
+
+    bloques[currentBlockIndex].push_back(registro);
+    currentBlockSize += registro.size();
+
+    return true;
+}
+
+void DataManager::imprimirBloques() {
+    for (int i = 0; i < cantidadBloques; ++i) {
+        cout << "Bloque " << i + 1 << ":" << endl;
+        for (const string& registro : bloques[i]) {
+            cout << registro << endl;
+        }
+        cout << endl;
+    }
+}
+
 void DataManager::Bloque(int tamanioBloque, int cant_platos, int cant_superficies, int cant_pistas, int cant_sectores) {
-    int cantidadBloques;
+    cout << "Tamanio del Bloque: ";
+    cin >> tamanioBloque;
+
+    int sectorPorBloque = tamanioBloque / tamanio_sector;
+    cout << "Cantidad de Sectores por Bloque: " << sectorPorBloque << endl;
+
+    cantidadBloques = (cant_sectores + sectorPorBloque - 1) / sectorPorBloque;
+    cout << "Cantidad de Bloques a crear: " << cantidadBloques << endl;
+
+    bloques.resize(cantidadBloques);  // Ajusta el tamaño del vector global
+
+    int plato, superficie, pista, sector;
+    //int currentBlockIndex = 0;  // Índice del bloque actual
+    //int currentBlockSize = 0;   // Tamaño actual del bloque
+
+    int bloqueGlobal = 1;
+
+    //ofstream archivoBloque;
+    for (plato = 1; plato <= cant_platos; plato++) {
+        for (superficie = 1; superficie <= cant_superficies; superficie++) {
+            for (pista = 1; pista <= cant_pistas; pista++) {
+                string carpetaPista = "../Disco/Disco/" + to_string(plato) + "/" +
+                                    to_string(superficie) + "/" + to_string(pista);
+                
+                // Crear archivos para cada bloque
+                for (int bloque = 1; bloque <= cantidadBloques; bloque++) {
+                    if (bloqueGlobal < bloques.size()) {
+                        // Formamos la cadena de texto que representará el bloque
+                        string infoBloque = carpetaPista + "/Bloque " + to_string(bloqueGlobal + 1);
+                        // Agregamos la información al vector del bloque correspondiente
+                        bloques[bloqueGlobal].push_back(infoBloque);
+                    }
+                    bloqueGlobal++;
+                }
+
+                
+            }
+        }
+    }
+
+    // Asegurarse de cerrar el último archivo de bloque
+
+    // Imprimir el contenido de todos los bloques después de procesar todos los archivos
+    almacenarInformacionBloques();
+}
+
+void DataManager::almacenarInformacionBloques() {
+    cout << "Almacenando información de los bloques..." << endl;
+    for (int i = 0; i < bloques.size(); i++) {
+        cout << "Bloque " << i + 1 << ":" << endl;
+        for (const string& registro : bloques[i]) {
+            cout << "  " << registro << endl;
+        }
+    }
+}
+
+/*
+void DataManager::Bloque(int tamanioBloque, int cant_platos, int cant_superficies, int cant_pistas, int cant_sectores) {
+    cout << "Tamanio de bloque: " << endl;
+    cin >> tamanioBloque;
+      
     cout << "Ingrese la cantidad de bloques que desea crear: ";
     cin >> cantidadBloques;
 
-    vector<vector<string>> vectores(cantidadBloques);  
+    bloques.resize(cantidadBloques);  // Ajusta el tamaño del vector global
 
     int plato, superficie, pista, sector;
     int currentBlockIndex = 0;  // Índice del bloque actual
@@ -452,7 +542,7 @@ void DataManager::Bloque(int tamanioBloque, int cant_platos, int cant_superficie
                             // Imprimir el contenido de todos los bloques al alcanzar el límite
                             for (int i = 0; i < cantidadBloques; ++i) {
                                 cout << "Bloque " << i + 1 << ":" << endl;
-                                for (const string& registro : vectores[i]) {
+                                for (const string& registro : bloques[i]) {
                                     cout << registro << endl;
                                 }
                                 cout << endl;
@@ -469,7 +559,7 @@ void DataManager::Bloque(int tamanioBloque, int cant_platos, int cant_superficie
 
                     string linea_registros;
                     while (getline(directorio, linea_registros)) {
-                        vectores[currentBlockIndex].push_back(linea_registros);
+                        bloques[currentBlockIndex].push_back(linea_registros);
                         currentBlockSize += linea_registros.size();
                         if (currentBlockSize >= tamanioBloque) {
                             currentBlockIndex++;
@@ -477,7 +567,14 @@ void DataManager::Bloque(int tamanioBloque, int cant_platos, int cant_superficie
                             if (currentBlockIndex >= cantidadBloques) {
                                 cout << "Se ha alcanzado la cantidad máxima de bloques." << endl;
                                 // Imprimir el contenido de todos los bloques al alcanzar el límite
-                            
+                                for (int i = 0; i < cantidadBloques; ++i) {
+                                    cout << "Bloque " << i + 1 << ":" << endl;
+                                    for (const string& registro : bloques[i]) {
+                                        cout << registro << endl;
+                                    }
+                                    cout << endl;
+                                }
+                                return;
                             }
                         }
                     }
@@ -489,9 +586,50 @@ void DataManager::Bloque(int tamanioBloque, int cant_platos, int cant_superficie
     // Imprimir el contenido de todos los bloques después de procesar todos los archivos
     for (int i = 0; i < cantidadBloques; ++i) {
         cout << "Bloque " << i + 1 << ":" << endl;
-        for (const string& registro : vectores[i]) {
+        for (const string& registro : bloques[i]) {
             cout << registro << endl;
         }
         cout << endl;
     }
 }
+*/
+
+/*
+for (sector = 1; sector <= cant_sectores; sector++) {
+                        string primer_sector = "../Disco/Disco/" + to_string(plato) + "/" + to_string(superficie) + "/" + to_string(pista) + "/" + to_string(sector);
+                        int peso_sector = Peso::peso_sector(primer_sector);
+
+                        if (currentBlockSize + peso_sector > tamanioBloque) {
+                            // Cambiar al siguiente bloque
+                            archivoBloque.close();  // Cerrar el archivo del bloque anterior
+                            currentBlockIndex++;
+                            currentBlockSize = 0;
+
+                            if (currentBlockIndex >= cantidadBloques) {
+                                cout << "Se ha alcanzado la cantidad máxima de bloques." << endl;
+                                imprimirBloques();
+                                return;
+                            }
+
+                            // Abrir nuevo archivo para el siguiente bloque
+                            string nuevoNombreBloque = carpetaPista + "/Bloque " + to_string(currentBlockIndex + 1) + ".txt";
+                            archivoBloque.open(nuevoNombreBloque, ios::app);
+                        }
+
+                        ifstream directorio(primer_sector);
+                        if (!directorio) {
+                            cerr << "Error al abrir el archivo: " << primer_sector << endl;
+                            continue; // Saltar a la siguiente iteración si no se puede abrir el archivo
+                        }
+
+                        string linea_registros;
+                        while (getline(directorio, linea_registros)) {
+                            // Agregar registros al archivo de bloques y verificar el tamaño
+                            archivoBloque << linea_registros << endl;
+                            if (!agregarRegistrosBloque(linea_registros, tamanioBloque, currentBlockIndex, currentBlockSize)) {
+                                archivoBloque.close();
+                                return;
+                            }
+                        }
+                    }
+*/
